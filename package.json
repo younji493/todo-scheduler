@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
+    "test:ai": "vitest run tests/features/todos/aiSchedule.test.js tests/features/todos/todoModel.test.js tests/features/todos/TodoProvider.api.test.jsx --pool=threads --maxWorkers=1",
+    "test:ai:live": "node scripts/verify-ai-schedule.mjs",
     "test:watch": "vitest"
   },
   "dependencies": {
     "lucide-react": "latest",
     "next": "latest",
+    "openai": "^7.45.0",
     "react": "latest",
     "react-dom": "latest"
   },

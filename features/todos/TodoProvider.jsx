@@ -1,55 +1,103 @@
-"use client";
+﻿"use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { createTodo, validateTodoDraft } from "./todoModel.js";
-import { getTodoStorage, readStoredTodos, writeStoredTodos } from "./todoStorage.js";
+import { validateTodoDraft } from "./todoModel.js";
 
 const TodoContext = createContext(null);
 
 export function TodoProvider({ children, initialTasks = [] }) {
   const [tasks, setTasks] = useState(initialTasks);
-  const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
-    const storedTasks = readStoredTodos(getTodoStorage());
+  const refreshTodos = useCallback(async () => {
+    const response = await fetch("/api/todos", { cache: "no-store" });
 
-    if (storedTasks) {
-      setTasks(storedTasks);
+    if (!response.ok) {
+      throw new Error("할 일 목록 조회 실패");
     }
 
-    setIsHydrated(true);
+    const todos = await response.json();
+
+    setTasks((currentTasks) => {
+      const taskMap = new Map(currentTasks.map((task) => [task.id, task]));
+
+      todos.forEach((todo) => {
+        taskMap.set(todo.id, todo);
+      });
+
+      return Array.from(taskMap.values());
+    });
   }, []);
 
   useEffect(() => {
-    if (isHydrated) {
-      writeStoredTodos(tasks, getTodoStorage());
-    }
-  }, [isHydrated, tasks]);
+    refreshTodos().catch((error) => {
+      console.error("Todo 조회 오류:", error);
+    });
+  }, [refreshTodos]);
 
-  const addTodo = (draft) => {
+  const addTodo = useCallback(async (draft) => {
     const validation = validateTodoDraft(draft);
 
     if (!validation.isValid) {
       return validation;
     }
 
-    setTasks((currentTasks) => [...currentTasks, createTodo(draft)]);
+    try {
+      const response = await fetch("/api/todos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
 
-    return validation;
-  };
+      if (!response.ok) {
+        throw new Error("할 일 저장 실패");
+      }
 
-  const toggleTodoComplete = (taskId) => {
-    setTasks((currentTasks) => currentTasks.map((task) => (
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    )));
-  };
+      const newTodo = await response.json();
+      setTasks((currentTasks) => [...currentTasks, newTodo]);
+
+      return validation;
+    } catch {
+      return {
+        isValid: false,
+        fieldErrors: { title: "할 일을 저장하지 못했습니다." },
+      };
+    }
+  }, []);
+
+  const toggleTodoComplete = useCallback(async (taskId) => {
+    const targetTask = tasks.find((task) => task.id === taskId);
+
+    if (!targetTask) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/todos/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: !targetTask.completed }),
+      });
+
+      if (!response.ok) {
+        throw new Error("할 일 수정 실패");
+      }
+
+      const updatedTodo = await response.json();
+      setTasks((currentTasks) => currentTasks.map((task) => (
+        task.id === taskId ? updatedTodo : task
+      )));
+    } catch (error) {
+      console.error("Todo 수정 오류:", error);
+    }
+  }, [tasks]);
 
   const value = useMemo(() => ({
     tasks,
     addTodo,
     toggleTodoComplete,
-  }), [tasks]);
+    refreshTodos,
+  }), [tasks, addTodo, toggleTodoComplete, refreshTodos]);
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
 }

@@ -91,7 +91,7 @@ export default function TodoAddDialog({ onClose, onSubmit, open }) {
     }
   };
 
-  const handleSubmit = (event) => {
+  /* const handleSubmit = (event) => {
     event.preventDefault();
     const validation = onSubmit(draft);
 
@@ -102,6 +102,21 @@ export default function TodoAddDialog({ onClose, onSubmit, open }) {
 
     resetDialog();
     onClose();
+  };
+  */
+
+  const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  const validation = await onSubmit(draft);
+
+  if (!validation.isValid) {
+    setFieldErrors(validation.fieldErrors);
+    return;
+  }
+
+  resetDialog();
+  onClose();
   };
 
   const errors = Object.values(fieldErrors);

@@ -1,3 +1,5 @@
+"use client";
+
 import { CalendarDays, CircleHelp, LayoutDashboard, Settings2, Sparkles } from "lucide-react";
 import Link from "next/link";
 
