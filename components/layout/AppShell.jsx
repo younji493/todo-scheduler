@@ -27,7 +27,7 @@ export default function AppShell({ activeSection = "today", children }) {
           </nav>
         </div>
         <div className="hidden lg:block"><SidebarNav activeSection={activeSection} /></div>
-        <main className="min-w-0 flex-1 overflow-auto">{children}</main>
+        <main className="min-w-0 flex-1 overflow-auto pb-24">{children}</main>
       </div>
     </div>
   );
