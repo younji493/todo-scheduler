@@ -33,7 +33,9 @@ export async function submitScheduleMessage(message, addTodo, fetchImpl = fetch)
     return { ok: false, text: result?.message || NETWORK_ERROR_MESSAGE };
   }
 
-  const validation = await addTodo(result.todo);
+  let validation;
+  try { validation = await addTodo(result.todo); }
+  catch { return { ok: false, text: SAVE_ERROR_MESSAGE }; }
 
   if (!validation?.isValid) {
     return { ok: false, text: SAVE_ERROR_MESSAGE };

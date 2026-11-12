@@ -15,7 +15,7 @@ function show(data = initialData) {
   return render(<TodoProvider initialTasks={data.tasks}><Dashboard initialData={data} /></TodoProvider>);
 }
 beforeEach(() => {
-  vi.stubGlobal("fetch", vi.fn(async (url, options) => ({ ok: true, json: async () => options?.method === "PATCH" ? { ...initialData.tasks[0], completed: true } : [] })));
+  vi.stubGlobal("fetch", vi.fn(async (url, options) => ({ ok: true, json: async () => options?.method === "PATCH" ? { ...initialData.tasks[0], completed: true } : initialData.tasks })));
 });
 afterEach(() => vi.unstubAllGlobals());
 

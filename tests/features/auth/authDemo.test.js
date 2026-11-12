@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateAuthForm } from "../../../features/auth/authDemo.js";
+import { validateAuthForm } from "../../../features/auth/authValidation.js";
 
 describe("validateAuthForm", () => {
   it("accepts a complete signup form", () => {

@@ -1,8 +1,10 @@
-﻿import { NextResponse } from "next/server";
+import { requireUser, apiError } from "../../../features/auth/serverAuth.js";
+import { NextResponse } from "next/server";
 
 import { AIScheduleError, extractTodoSchedule } from "../../../features/todos/aiSchedule.js";
 
 export async function POST(request) {
+  try { await requireUser(); } catch (error) { return apiError(error); }
   let body;
   try {
     body = await request.json();

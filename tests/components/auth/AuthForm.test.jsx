@@ -20,7 +20,7 @@ describe("AuthForm", () => {
       target: { value: "not-an-email" },
     });
     fireEvent.change(screen.getByLabelText("비밀번호"), {
-      target: { value: "planner" },
+      target: { value: "planner123" },
     });
     fireEvent.click(screen.getByRole("button", { name: "로그인" }));
 
@@ -47,18 +47,18 @@ describe("AuthForm", () => {
       target: { value: "minji@example.com" },
     });
     fireEvent.change(screen.getByLabelText("비밀번호"), {
-      target: { value: "planner" },
+      target: { value: "planner123" },
     });
     fireEvent.change(screen.getByLabelText("비밀번호 확인"), {
-      target: { value: "planner" },
+      target: { value: "planner123" },
     });
     fireEvent.click(screen.getByRole("button", { name: "회원가입" }));
 
     expect(submittedValues).toMatchObject({
       name: "민지",
       email: "minji@example.com",
-      password: "planner",
-      passwordConfirmation: "planner",
+      password: "planner123",
+      passwordConfirmation: "planner123",
     });
   });
 });

@@ -1,3 +1,4 @@
+import AccountMenu from "../../features/auth/AccountMenu.jsx";
 import SidebarNav from "./SidebarNav";
 import Logo from "../ui/Logo";
 import Link from "next/link";
@@ -28,7 +29,7 @@ export default function AppShell({ activeSection = "today", children }) {
           </nav>
         </div>
         <div className="hidden lg:block"><SidebarNav activeSection={activeSection} /></div>
-        <main className="min-w-0 flex-1 overflow-auto pb-24">{children}</main>
+        <main className="min-w-0 flex-1 overflow-auto pb-24"><AccountMenu />{children}</main>
       </div>
     </div>
   );

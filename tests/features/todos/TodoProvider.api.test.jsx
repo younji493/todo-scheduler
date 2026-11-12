@@ -1,4 +1,4 @@
-﻿import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TodoProvider, useTodos } from "../../../features/todos/TodoProvider.jsx";
@@ -23,16 +23,16 @@ describe("TodoProvider API", () => {
     vi.restoreAllMocks();
   });
 
-  it("refreshes server tasks while preserving seed tasks and avoiding duplicates", async () => {
+  it("uses the authenticated server list as the source of truth", async () => {
     const saved = { id: "saved", title: "Saved", completed: false };
     fetch.mockResolvedValueOnce(response([saved]));
     const { result } = setup();
-    await waitFor(() => expect(result.current.tasks).toEqual([seed, saved]));
+    await waitFor(() => expect(result.current.tasks).toEqual([saved]));
     const refresh = result.current.refreshTodos;
     const updated = { ...saved, completed: true };
     fetch.mockResolvedValueOnce(response([updated]));
     await act(async () => { await result.current.refreshTodos(); });
-    expect(result.current.tasks).toEqual([seed, updated]);
+    expect(result.current.tasks).toEqual([updated]);
     expect(result.current.refreshTodos).toBe(refresh);
     expect(fetch).toHaveBeenLastCalledWith("/api/todos", { cache: "no-store" });
   });
@@ -44,7 +44,7 @@ describe("TodoProvider API", () => {
     await act(async () => {
       await expect(result.current.refreshTodos()).rejects.toThrow("할 일 목록 조회 실패");
     });
-    expect(result.current.tasks).toEqual([seed]);
+    expect(result.current.tasks).toEqual([]);
   });
 
   it("adds a todo returned by the server", async () => {
@@ -55,7 +55,7 @@ describe("TodoProvider API", () => {
     await act(async () => {
       expect(await result.current.addTodo(draft)).toEqual({ isValid: true, fieldErrors: {} });
     });
-    expect(result.current.tasks).toEqual([seed, saved]);
+    expect(result.current.tasks).toEqual([saved]);
     expect(fetch).toHaveBeenLastCalledWith("/api/todos", expect.objectContaining({ method: "POST", body: JSON.stringify(draft) }));
   });
 
@@ -70,10 +70,11 @@ describe("TodoProvider API", () => {
         fieldErrors: { title: "할 일을 저장하지 못했습니다." },
       });
     });
-    expect(result.current.tasks).toEqual([seed]);
+    expect(result.current.tasks).toEqual([]);
   });
 
   it("applies the completion state returned by the server", async () => {
+    fetch.mockResolvedValueOnce(response([seed]));
     const { result } = setup();
     await act(async () => {});
     fetch.mockResolvedValueOnce(response({ ...seed, completed: true }));
@@ -81,4 +82,19 @@ describe("TodoProvider API", () => {
     expect(result.current.tasks).toEqual([{ ...seed, completed: true }]);
     expect(fetch).toHaveBeenLastCalledWith("/api/todos/seed", expect.objectContaining({ method: "PATCH", body: JSON.stringify({ completed: true }) }));
   });
+});
+
+// A slow initial GET must not erase a successful insert from the current session.
+it("keeps a newly saved todo when an older list request finishes later", async () => {
+  let resolveList;
+  const saved = { ...draft, id: "saved", completed: false };
+  vi.stubGlobal("fetch", vi.fn((url, options) => options?.method === "POST"
+    ? Promise.resolve(response(saved))
+    : new Promise(resolve => { resolveList = resolve; })));
+  const { result } = setup();
+  await act(async () => { await result.current.addTodo(draft); });
+  expect(result.current.tasks).toContainEqual(saved);
+  await act(async () => { resolveList(response([])); });
+  expect(result.current.tasks).toContainEqual(saved);
+  vi.unstubAllGlobals();
 });

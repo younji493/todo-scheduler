@@ -12,6 +12,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
     "lucide-react": "latest",
     "next": "latest",
     "openai": "^7.45.0",
@@ -19,6 +21,7 @@
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "@tailwindcss/postcss": "latest",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",

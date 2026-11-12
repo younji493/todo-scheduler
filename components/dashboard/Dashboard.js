@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuthUser } from "../../features/auth/AuthGuard.jsx";
 import { createElement, useMemo } from "react";
 import { getEventsOnDate, getTasksInRange, getTasksOnDate } from "../../features/todos/todoCalendar.js";
 import TodoChecklist from "../todos/TodoChecklist.jsx";
@@ -17,6 +18,7 @@ const h = createElement;
 
 export default function Dashboard({ initialData }) {
   const { tasks, toggleTodoComplete, todayDate } = useTodos();
+  const authUser = useAuthUser();
   const timeZone = initialData?.timeZone ?? "Asia/Seoul";
   const date = initialData?.date ?? todayDate;
   const todayKey = getCalendarDateKey(date, timeZone);
@@ -50,7 +52,7 @@ export default function Dashboard({ initialData }) {
     "section",
     { className: "p-5 sm:p-8 lg:p-10" },
     h(DashboardHeader, {
-      user: initialData?.user,
+      user: authUser || initialData?.user,
       dateValue: date,
       timeZone: initialData?.timeZone,
     }),

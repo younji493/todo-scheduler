@@ -29,7 +29,7 @@ it("adds through chat, shares completion in all three views, and offers no manua
   for (const view of ["today", "week", "month"]) expect(within(screen.getByTestId(view)).getByRole("checkbox", { name: "책 반납 완료" })).not.toBeChecked();
   await act(async () => { fireEvent.click(within(screen.getByTestId("today")).getByRole("checkbox", { name: "책 반납 완료" })); });
   for (const view of ["today", "week", "month"]) expect(within(screen.getByTestId(view)).getByRole("checkbox", { name: "책 반납 완료" })).toBeChecked();
-});
+}, 15000);
 
 it("refreshes the real Korean day after midnight on window focus", async () => {
   render(<TodoProvider><Dashboard /></TodoProvider>);

@@ -2,7 +2,7 @@
 
 import { createElement, useState } from "react";
 
-import { validateAuthForm } from "../../features/auth/authDemo.js";
+import { validateAuthForm } from "../../features/auth/authValidation.js";
 
 const EMPTY_VALUES = {
   name: "",
@@ -35,7 +35,7 @@ function Field({ autoComplete, error, id, label, name, onChange, type = "text", 
   );
 }
 
-export default function AuthForm({ mode, onSuccess }) {
+export default function AuthForm({ mode, onSuccess, pending = false }) {
   const isSignup = mode === "signup";
   const [values, setValues] = useState(EMPTY_VALUES);
   const [errors, setErrors] = useState({});
@@ -47,6 +47,7 @@ export default function AuthForm({ mode, onSuccess }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (pending) return;
 
     const nextErrors = validateAuthForm(mode, values);
     setErrors(nextErrors);
@@ -103,8 +104,9 @@ export default function AuthForm({ mode, onSuccess }) {
       {
         className: "mt-2 flex w-full items-center justify-center rounded-xl bg-[#2d3559] px-4 py-3.5 text-sm font-black text-white shadow-[0_12px_22px_rgba(45,53,89,0.2)] transition hover:-translate-y-0.5 hover:bg-[#424c78] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8f7ce7]",
         type: "submit",
+        disabled: pending,
       },
-      isSignup ? "회원가입" : "로그인",
+      pending ? "처리 중…" : isSignup ? "회원가입" : "로그인",
     ),
   );
 }

@@ -32,7 +32,7 @@ export default function AuthCard({ children, mode }) {
       </h1>
       <p className="mt-3 leading-6 text-[#727895]">{copy.description}</p>
       <p className="mt-2 rounded-xl bg-[#fff7ef] px-3 py-2.5 text-xs leading-5 text-[#977466]">
-        화면 미리보기입니다. 실제 계정은 생성되지 않으며, 이메일과 비밀번호는 저장하거나 전송하지 않아요. 로그인하면 이 탭에서 홈 화면을 둘러볼 수 있어요.
+        가입한 계정으로 로그인하면 내 일정을 저장하고 다시 확인할 수 있어요.
       </p>
       <div className="mt-8">{children}</div>
       <Link

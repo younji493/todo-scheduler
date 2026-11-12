@@ -1,3 +1,4 @@
+vi.mock("../../../features/auth/AccountMenu.jsx", () => ({ default: () => null }));
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AppShell from "../../../components/layout/AppShell.jsx";
@@ -10,7 +11,7 @@ const tasks = [
   { id: "plain", title: "책 반납", startDate: "2026-09-23", dueDate: "2026-09-25", completed: false },
   { id: "future", title: "다음 주 할 일", startDate: "2026-09-28", dueDate: "2026-09-28", completed: false },
 ];
-beforeEach(() => vi.stubGlobal("fetch", vi.fn(async (url, options) => ({ ok: true, json: async () => options?.method === "PATCH" ? { ...tasks[0], completed: true } : [] }))));
+beforeEach(() => vi.stubGlobal("fetch", vi.fn(async (url, options) => ({ ok: true, json: async () => options?.method === "PATCH" ? { ...tasks[0], completed: true } : tasks }))));
 afterEach(() => vi.unstubAllGlobals());
 function show() { render(<TodoProvider initialTasks={tasks}><AppShell activeSection="week"><WeeklyDiary initialData={data} /></AppShell></TodoProvider>); }
 describe("WeeklyDiary", () => {

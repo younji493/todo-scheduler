@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("../../../../features/auth/serverAuth.js", () => ({ requireUser: vi.fn().mockResolvedValue({ user: { id: "user-a" } }), apiError: vi.fn() }));
+
 import { POST } from "../../../../app/api/chat/route.js";
 
 function chatRequest(body) {

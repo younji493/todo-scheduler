@@ -3,3 +3,4 @@ node_modules/
 coverage/
 .npm-cache/
 .env*
+!.env.example

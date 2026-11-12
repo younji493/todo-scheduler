@@ -1,7 +1,9 @@
+import { requireUser, apiError } from "../../../features/auth/serverAuth.js";
 import { extractSchedule } from "../../../features/chat/scheduleExtraction.js";
 import { scheduleToTodoResponse } from "../../../features/chat/scheduleToTodo.js";
 
 export async function POST(request) {
+  try { await requireUser(); } catch (error) { return apiError(error); }
   const body = await request.json().catch(() => null);
   const message = typeof body?.message === "string" ? body.message.trim() : "";
 

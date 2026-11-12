@@ -11,7 +11,19 @@ vi.mock("openai", () => ({
 import { POST as analyze } from "../../../app/api/ai-schedule/route.js";
 import { GET as list, POST as save } from "../../../app/api/todos/route.js";
 import { extractTodoSchedule } from "../../../features/todos/aiSchedule.js";
-import { getTodos } from "../../../features/todos/todoServerStore.js";
+const { stored } = vi.hoisted(() => ({ stored: [] }));
+const getTodos = () => stored;
+vi.mock("../../../features/auth/serverAuth.js", async importOriginal => {
+  const actual = await importOriginal();
+  return { ...actual, requireUser: vi.fn().mockResolvedValue({ supabase: {}, user: { id: "user-a" } }) };
+});
+vi.mock("../../../features/todos/todoRepository.js", () => ({
+  listTodos: vi.fn(async () => [...stored]),
+  insertTodo: vi.fn(async (_client, _user, draft) => {
+    const todo = { ...draft, durationMinutes: Number(draft.durationMinutes), id: "00000000-0000-4000-8000-000000000001", completed: false };
+    stored.push(todo); return todo;
+  }),
+}));
 
 const extracted = {
   title: "공부",
@@ -73,7 +85,7 @@ describe("natural language to TODO", () => {
     const saved = await save(request(data.todo));
     expect(saved.status).toBe(201);
     const todo = await saved.json();
-    expect(todo).toMatchObject({ ...draft, id: expect.stringMatching(/^task-/), completed: false });
+    expect(todo).toMatchObject({ ...draft, id: expect.stringMatching(/^[0-9a-f-]{36}$/), completed: false });
     expect(todo).not.toHaveProperty("syncStatus");
     expect(await (await list()).json()).toEqual([todo]);
   });

@@ -16,6 +16,10 @@ export function validateAuthForm(mode, values) {
     errors.password = "비밀번호를 입력해 주세요.";
   }
 
+  if (mode === "signup" && password && password.length < 8) {
+    errors.password = "비밀번호는 8자 이상 입력해 주세요.";
+  }
+
   if (mode === "signup" && password !== passwordConfirmation) {
     errors.passwordConfirmation = "비밀번호가 일치하지 않습니다.";
   }
